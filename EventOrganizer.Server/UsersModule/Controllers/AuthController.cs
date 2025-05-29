@@ -85,14 +85,18 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+        var jwtKey = _config["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(jwtKey))
+            throw new InvalidOperationException("JWT Key is not configured.");
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id ?? string.Empty),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+        new Claim(ClaimTypes.Role, user.Role ?? "User")
+    };
 
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
@@ -105,19 +109,24 @@ public class AuthController : ControllerBase
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+
     [HttpPost("request-reset")]
     public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
     {
         var user = await _repo.GetByEmailAsync(email);
-        if (user == null) return Ok(); // Don't expose that user doesn't exist
+        if (user == null) return Ok("Reset link sent."); // changed here
 
         user.PasswordResetToken = TokenGenerator.GenerateToken();
         user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
         await _repo.UpdateAsync(user);
+
+        if (string.IsNullOrEmpty(user.Email))
+            return BadRequest("User email is invalid.");
 
         await _emailService.SendEmailAsync(user.Email, "Reset your password",
             $"Click here to reset: https://yourdomain.com/reset-password?token={user.PasswordResetToken}");
 
         return Ok("Reset link sent.");
     }
+
 }
