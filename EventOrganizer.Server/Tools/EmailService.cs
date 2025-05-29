@@ -1,22 +1,33 @@
-﻿using System.Net.Mail;
+﻿using Microsoft.Extensions.Options;
 using System.Net;
+using System.Net.Mail;
 
 namespace EventOrganizer.Server.Tools
 {
     public class EmailService : IEmailService
     {
+        private readonly SmtpSettings _smtpSettings;
+
+        public EmailService(IOptions<SmtpSettings> smtpOptions)
+        {
+            _smtpSettings = smtpOptions.Value;
+        }
+
         public async Task SendEmailAsync(string to, string subject, string body)
         {
-            var smtpClient = new SmtpClient("smtp.example.com")
+            var client = new SmtpClient(_smtpSettings.Host)
             {
-                Port = 587,
-                Credentials = new NetworkCredential("your@email.com", "yourpassword"),
-                EnableSsl = true,
+                Port = _smtpSettings.Port,
+                Credentials = new NetworkCredential(_smtpSettings.User, _smtpSettings.Password),
+                EnableSsl = _smtpSettings.EnableSsl
             };
 
-            var mail = new MailMessage("your@email.com", to, subject, body);
-            await smtpClient.SendMailAsync(mail);
+            var mail = new MailMessage(_smtpSettings.From, to, subject, body)
+            {
+                IsBodyHtml = true
+            };
+
+            await client.SendMailAsync(mail);
         }
     }
 }
-

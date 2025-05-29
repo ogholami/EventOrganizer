@@ -47,9 +47,30 @@ public class AuthController : ControllerBase
 
         await _repo.CreateAsync(user);
 
+        var token = Guid.NewGuid().ToString();
+        user.EmailVerificationToken = token;
+        user.EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
+        var confirmationUrl = $"https://yourdomain.com/api/users/confirm-email?token={token}";
+        await _emailService.SendEmailAsync(user.Email, "Confirm your email",
+            $"<p>Click <a href=\"{confirmationUrl}\">here</a> to confirm your email.</p>");
+
         return Ok("Registration successful.");
     }
 
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
+    {
+        var user = await _repo.FindByEmailVerificationTokenAsync(token);
+        if (user == null || user.EmailVerificationTokenExpiry < DateTime.UtcNow)
+            return BadRequest("Invalid or expired token.");
+
+        user.IsVerified = true;
+        user.EmailVerificationToken = null;
+        user.EmailVerificationTokenExpiry = null;
+        await _repo.UpdateAsync(user);
+
+        return Ok("Email confirmed successfully!");
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginUserDto dto)
@@ -84,21 +105,6 @@ public class AuthController : ControllerBase
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    [HttpGet("confirm")]
-    public async Task<IActionResult> ConfirmEmail(string token)
-    {
-        var user = await _repo.FindByEmailVerificationTokenAsync(token);
-        if (user == null || user.EmailVerificationTokenExpires < DateTime.UtcNow)
-            return BadRequest("Invalid or expired token.");
-
-        user.IsVerified = true;
-        user.EmailVerificationToken = null;
-        user.EmailVerificationTokenExpires = null;
-        await _repo.UpdateAsync(user);
-
-        return Ok("Email confirmed successfully.");
-    }
-
     [HttpPost("request-reset")]
     public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
     {
@@ -106,7 +112,7 @@ public class AuthController : ControllerBase
         if (user == null) return Ok(); // Don't expose that user doesn't exist
 
         user.PasswordResetToken = TokenGenerator.GenerateToken();
-        user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(1);
+        user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
         await _repo.UpdateAsync(user);
 
         await _emailService.SendEmailAsync(user.Email, "Reset your password",
@@ -114,20 +120,4 @@ public class AuthController : ControllerBase
 
         return Ok("Reset link sent.");
     }
-
-    [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
-    {
-        var user = await _repo.FindByResetTokenAsync(dto.Token);
-        if (user == null || user.PasswordResetTokenExpires < DateTime.UtcNow)
-            return BadRequest("Invalid or expired token.");
-
-        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
-        user.PasswordResetToken = null;
-        user.PasswordResetTokenExpires = null;
-        await _repo.UpdateAsync(user);
-
-        return Ok("Password reset successfully.");
-    }
-
 }
