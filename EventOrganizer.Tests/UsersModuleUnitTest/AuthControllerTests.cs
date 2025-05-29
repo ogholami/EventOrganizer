@@ -3,10 +3,12 @@ using EventOrganizer.Server.DTOs;
 using EventOrganizer.Server.Models;
 using EventOrganizer.Server.Repositories;
 using EventOrganizer.Server.Tools;
+using EventOrganizer.Server.UsersModule.DTOs;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace EventOrganizer.Tests;
@@ -173,4 +175,94 @@ public class AuthControllerTests
         result.Should().BeOfType<OkObjectResult>();
         _emailServiceMock.Verify(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
+
+    [Fact]
+    public async Task PasswordReset_ShouldReturnBadRequest_WhenTokenExpired()
+    {
+        var token = "expiredtoken";
+        var user = new User
+        {
+            PasswordResetToken = token,
+            PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(-10)
+        };
+
+        _userRepoMock.Setup(r => r.FindByPasswordResetTokenAsync(token)).ReturnsAsync(user);
+
+        var dto = new ResetPasswordDto
+        {
+            Token = token,
+            NewPassword = "NewSecurePassword1!"
+        };
+
+        var result = await _controller.ResetPassword(dto);
+
+        result.Should().BeOfType<BadRequestObjectResult>()
+              .Which.Value.Should().Be("Invalid or expired token.");
+    }
+
+    [Fact]
+    public async Task PasswordReset_ShouldReturnBadRequest_WhenTokenInvalid()
+    {
+        string invalidToken = "invalid123";
+
+        _userRepoMock.Setup(r => r.FindByPasswordResetTokenAsync(invalidToken)).ReturnsAsync((User?)null);
+
+        var dto = new ResetPasswordDto
+        {
+            Token = invalidToken,
+            NewPassword = "NewSecurePassword1!"
+        };
+
+        var result = await _controller.ResetPassword(dto);
+
+        result.Should().BeOfType<BadRequestObjectResult>()
+              .Which.Value.Should().Be("Invalid or expired token.");
+    }
+
+
+    [Fact]
+    public async Task PasswordReset_ShouldReturnOk_WhenTokenValid()
+    {
+        var token = "validtoken";
+        var user = new User
+        {
+            Email = "aa@aa",
+            PasswordResetToken = token,
+            PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(30)
+        };
+
+        _userRepoMock.Setup(r => r.FindByPasswordResetTokenAsync(token)).ReturnsAsync(user);
+        _userRepoMock.Setup(r => r.UpdateAsync(It.IsAny<User>())).Returns(Task.CompletedTask);
+
+        var dto = new ResetPasswordDto
+        {
+            Token = token,
+            NewPassword = "NewSecurePassword1!"
+        };
+
+        var result = await _controller.ResetPassword(dto);
+
+        result.Should().BeOfType<OkObjectResult>()
+              .Which.Value.Should().Be("Password has been reset.");
+    }
+
+
+    [Fact]
+    public async Task RequestReset_ShouldSetTokenAndExpiry_WhenUserExists()
+    {
+        var email = "exists@example.com";
+        var user = new User { Email = email };
+
+        _userRepoMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync(user);
+        _userRepoMock.Setup(r => r.UpdateAsync(It.IsAny<User>())).Returns(Task.CompletedTask);
+        _emailServiceMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+
+        await _controller.RequestPasswordReset(email);
+
+        _userRepoMock.Verify(r => r.UpdateAsync(It.Is<User>(u =>
+            !string.IsNullOrEmpty(u.PasswordResetToken) &&
+            u.PasswordResetTokenExpiry > DateTime.UtcNow)), Times.Once);
+    }
+
+    
 }

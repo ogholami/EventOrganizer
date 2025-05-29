@@ -9,5 +9,5 @@ public interface IUserRepository
     Task<User?> FindByEmailVerificationTokenAsync(string token);
     Task<User?> FindByResetTokenAsync(string token);
     Task UpdateAsync(User user);
-
+    Task<User?> FindByPasswordResetTokenAsync(string token);
 }

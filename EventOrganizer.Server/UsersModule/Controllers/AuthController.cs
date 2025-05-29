@@ -129,4 +129,21 @@ public class AuthController : ControllerBase
         return Ok("Reset link sent.");
     }
 
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    {
+        var user = await _repo.FindByPasswordResetTokenAsync(dto.Token);
+        if (user == null || user.PasswordResetTokenExpiry < DateTime.UtcNow)
+        {
+            return BadRequest("Invalid or expired token.");
+        }
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        user.PasswordResetToken = null;
+        user.PasswordResetTokenExpiry = null;
+
+        await _repo.UpdateAsync(user);
+
+        return Ok("Password has been reset.");
+    }
 }
