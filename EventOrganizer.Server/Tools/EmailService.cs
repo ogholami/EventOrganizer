@@ -26,8 +26,8 @@ namespace EventOrganizer.Server.Tools
             {
                 IsBodyHtml = true
             };
-
-            await client.SendMailAsync(mail);
+            // For now we do not send
+            // await client.SendMailAsync(mail);
         }
     }
 }

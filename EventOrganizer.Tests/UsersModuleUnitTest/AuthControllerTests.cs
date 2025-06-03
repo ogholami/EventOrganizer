@@ -8,8 +8,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Newtonsoft.Json.Linq;
-using Xunit;
 
 namespace EventOrganizer.Tests;
 
@@ -219,7 +217,6 @@ public class AuthControllerTests
               .Which.Value.Should().Be("Invalid or expired token.");
     }
 
-
     [Fact]
     public async Task PasswordReset_ShouldReturnOk_WhenTokenValid()
     {
@@ -246,7 +243,6 @@ public class AuthControllerTests
               .Which.Value.Should().Be("Password has been reset.");
     }
 
-
     [Fact]
     public async Task RequestReset_ShouldSetTokenAndExpiry_WhenUserExists()
     {
@@ -263,6 +259,4 @@ public class AuthControllerTests
             !string.IsNullOrEmpty(u.PasswordResetToken) &&
             u.PasswordResetTokenExpiry > DateTime.UtcNow)), Times.Once);
     }
-
-    
 }

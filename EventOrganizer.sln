@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventOrganizer.Client", "Ev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventOrganizer.Tests", "EventOrganizer.Tests\EventOrganizer.Tests.csproj", "{8B87F208-D78D-CA25-28F5-D450EA9F1582}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wwwroot", "wwwroot\wwwroot.csproj", "{14448745-6E88-4C1C-9312-8DD193A93E63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8B87F208-D78D-CA25-28F5-D450EA9F1582}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B87F208-D78D-CA25-28F5-D450EA9F1582}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B87F208-D78D-CA25-28F5-D450EA9F1582}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14448745-6E88-4C1C-9312-8DD193A93E63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14448745-6E88-4C1C-9312-8DD193A93E63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14448745-6E88-4C1C-9312-8DD193A93E63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14448745-6E88-4C1C-9312-8DD193A93E63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

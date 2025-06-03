@@ -37,19 +37,20 @@ public class AuthController : ControllerBase
             return Conflict("Email is already in use.");
 
         // Create a new user
+
+        var token = Guid.NewGuid().ToString();
         var user = new User
         {
             Name = dto.Name,
             Email = dto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password), // set inside initializer
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            EmailVerificationToken = token,
+            EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
         };
 
         await _repo.CreateAsync(user);
 
-        var token = Guid.NewGuid().ToString();
-        user.EmailVerificationToken = token;
-        user.EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
         var confirmationUrl = $"https://yourdomain.com/api/users/confirm-email?token={token}";
         await _emailService.SendEmailAsync(user.Email, "Confirm your email",
             $"<p>Click <a href=\"{confirmationUrl}\">here</a> to confirm your email.</p>");
@@ -60,16 +61,22 @@ public class AuthController : ControllerBase
     [HttpGet("confirm-email")]
     public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
     {
-        var user = await _repo.FindByEmailVerificationTokenAsync(token);
-        if (user == null || user.EmailVerificationTokenExpiry < DateTime.UtcNow)
-            return BadRequest("Invalid or expired token.");
+        Console.WriteLine($"Token received: {token}");
+
+        if (string.IsNullOrEmpty(token))
+            return BadRequest("Token is missing.");
+
+        var user = await _repo.FindByPasswordResetTokenAsync(token);
+        if (user == null)
+            return NotFound("Invalid or expired token.");
 
         user.IsVerified = true;
         user.EmailVerificationToken = null;
         user.EmailVerificationTokenExpiry = null;
+        user.PasswordResetToken = null;
         await _repo.UpdateAsync(user);
 
-        return Ok("Email confirmed successfully!");
+        return Ok("Email confirmed.");
     }
 
     [HttpPost("login")]

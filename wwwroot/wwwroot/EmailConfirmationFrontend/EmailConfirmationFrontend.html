@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Confirmation</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>Email Confirmation</h1>
+    <p id="message">Loading...</p>
+
+    <script>
+        async function confirmEmail() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get("token");
+
+            if (!token) {
+                document.getElementById("message").innerText = "Missing token.";
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://localhost:7057/api/auth/confirm-email?token=${encodeURIComponent(token)}`);
+                if (res.ok) {
+                    document.getElementById("message").innerText = "Email confirmed successfully!";
+                } else {
+                    const error = await res.text();
+                    document.getElementById("message").innerText = "Failed: " + (error || "Unknown error");
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById("message").innerText = "Network error";
+            }
+        }
+
+        confirmEmail();
+    </script>
+</body>
+</html>
