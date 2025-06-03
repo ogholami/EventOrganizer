@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{PAGE_TITLE}}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-semibold text-blue-600">Event Organizer</h1>
+            <nav>
+                <a href="/Register.html" class="text-gray-700 hover:text-blue-600 px-3">Register</a>
+                <a href="/Login.html" class="text-gray-700 hover:text-blue-600 px-3">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <div class="max-w-3xl mx-auto px-4 py-10">
+            <!-- Page-specific content goes here -->
+            {{PAGE_CONTENT}}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white shadow-inner mt-10">
+        <div class="max-w-6xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
+            &copy; 2025 Event Organizer. All rights reserved.
+        </div>
+    </footer>
+
+</body>
+</html>
