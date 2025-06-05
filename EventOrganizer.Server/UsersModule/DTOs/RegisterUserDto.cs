@@ -1,9 +1,16 @@
-﻿namespace EventOrganizer.Server.DTOs
-{   
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EventOrganizer.Server.DTOs
+{
     public class RegisterUserDto
     {
-        public string Name { get; set; } = null!;
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
+        [Required]
+        public string Name { get; set; }
+
+        [Required, EmailAddress]
+        public string Email { get; set; }
+
+        [Required, MinLength(6)]
+        public string Password { get; set; }
     }
 }
