@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>Dashboard - Event Organizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="css/style.css" rel="stylesheet">
+    <link href="/wwwroot/css/Style2.css" rel="stylesheet">
 </head>
 <body>
-    <div class="dashboard-container">
-        <h1>Welcome to Your Dashboard 🎉</h1>
+    <div class="container">
+        <h1>Welcome to Your Dashboard</h1>
         <p id="userInfo">Loading user info...</p>
         <button onclick="logout()">Logout</button>
     </div>
@@ -37,7 +37,7 @@
             const decoded = parseJwt(token);
             const name = decoded?.name || "User";
             console.log("Decoded token:", decoded);
-            document.getElementById('userInfo').textContent = `Welcome, ${name}! 🎉`;
+            document.getElementById('userInfo').textContent = `Welcome, ${name}!`;
         }
 
     </script>
