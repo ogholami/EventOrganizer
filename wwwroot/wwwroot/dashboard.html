@@ -4,42 +4,62 @@
     <meta charset="UTF-8">
     <title>Dashboard - Event Organizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/wwwroot/css/Style2.css" rel="stylesheet">
+    <link href="/wwwroot/css/Style.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Your Dashboard</h1>
-        <p id="userInfo">Loading user info...</p>
-        <button onclick="logout()">Logout</button>
-    </div>
+    <div class="layout">
+        <div class="sidebar">
+            <h3>Menu</h3>
+            <a href="/wwwroot/index.html">Home</a>
+            <a href="/wwwroot/user/register.html">Register</a>
+            <a href="/wwwroot/user/login.html">Login</a>
+            <a href="#">Events</a>
+            <a href="#">Contact</a>
+        </div>
+        <header>
+            <h2>🎊 Event Organizer</h2>
+            <div>
+                <button onclick="logout()" class="ribbon-button">🚪 Logout</button>
+                <a href="/wwwroot/index.html" class="ribbon-button">🏠 Home</a>
+            </div>
+        </header>
+        
+        <!-- Dashboard Container -->
+        <div class="container">
+            <h1>Welcome to Your Dashboard</h1>
+            <p id="userInfo">Loading user info...</p>
+        </div>
 
-    <script>
-
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-
-                return JSON.parse(jsonPayload);
-            } catch (e) {
-                return null;
+        <!-- Script -->
+        <script>
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(jsonPayload);
+                } catch (e) {
+                    return null;
+                }
             }
-        }
 
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert("You are not logged in.");
-            window.location.href = "/login.html";
-        } else {
-            const decoded = parseJwt(token);
-            const name = decoded?.name || "User";
-            console.log("Decoded token:", decoded);
-            document.getElementById('userInfo').textContent = `Welcome, ${name}!`;
-        }
+            function logout() {
+                localStorage.removeItem('token');
+                window.location.href = "/wwwroot/index.html";
+            }
 
-    </script>
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("You are not logged in.");
+                window.location.href = "/wwwroot/user/login.html";
+            } else {
+                const decoded = parseJwt(token);
+                const name = decoded?.name || "User";
+                document.getElementById('userInfo').textContent = `Welcome, ${name}!`;
+            }
+        </script>
+    </div>
 </body>
 </html>

@@ -4,11 +4,19 @@
     <meta charset="UTF-8">
     <title>Register - Event Organizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/wwwroot/css/Style2.css" rel="stylesheet">
+    <link href="/wwwroot/css/Style.css" rel="stylesheet">
 </head>
 <body>
+
+    <!-- Ribbon with Home Button -->
+    <div class="ribbon">
+        <button onclick="location.href='/wwwroot/index.html'">🏠 Home</button>
+    </div>
+
+    <!-- Registration Card -->
     <div class="container">
         <h1>Create Your Account</h1>
+
         <form id="registerForm">
             <input type="text" name="name" placeholder="Full Name" required />
             <input type="email" name="email" placeholder="Email Address" required />
@@ -19,8 +27,11 @@
         <div class="divider"><span>or</span></div>
 
         <button class="oauth-btn" onclick="handleGoogleLogin()">Sign Up with Google</button>
+
+        <div id="message"></div>
     </div>
 
+    <!-- Script -->
     <script>
         document.getElementById('registerForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -39,22 +50,22 @@
                 });
 
                 if (response.ok) {
-                    alert("Registration successful! Please check your email to confirm your account.");
+                    document.getElementById('message').textContent = "Registration successful! Please check your email to confirm your account.";
                     this.reset();
                 } else {
                     const error = await response.text();
-                    alert("Registration failed: " + error);
+                    document.getElementById('message').textContent = "Registration failed: " + error;
                 }
             } catch (err) {
-                alert("An error occurred. Please try again.");
+                document.getElementById('message').textContent = "An error occurred. Please try again.";
                 console.error(err);
             }
         });
 
         function handleGoogleLogin() {
             alert("Google Sign-In coming soon...");
-            // In production, redirect to Google OAuth2 flow
         }
     </script>
+
 </body>
 </html>

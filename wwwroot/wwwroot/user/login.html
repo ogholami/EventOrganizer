@@ -4,18 +4,33 @@
     <meta charset="UTF-8">
     <title>Login - Event Organizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/wwwroot/css/Style2.css" rel="stylesheet">
+    <link href="/wwwroot/css/Style.css" rel="stylesheet">
 </head>
 <body>
-     <div class="container">
+
+    <!-- Top Ribbon with Home Button -->
+    <div class="ribbon">
+        <button onclick="location.href='/wwwroot/index.html'">🏠 Home</button>
+    </div>
+
+    <!-- Login Card -->
+    <div class="container">
         <h1>Welcome Back</h1>
-        <form id="loginForm"  method="post">
+        <form id="loginForm" method="post">
             <input type="email" name="email" placeholder="Email Address" required />
             <input type="password" name="password" placeholder="Password" required />
             <button type="submit">Login</button>
         </form>
+
+        <!-- Optional Divider and OAuth -->
+        <div class="divider"><span>or</span></div>
+        <button class="oauth-btn" onclick="alert('OAuth login not implemented yet')">Continue with Google</button>
+
+        <!-- Message placeholder -->
+        <div id="message"></div>
     </div>
 
+    <!-- Script to handle login -->
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -34,18 +49,18 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    localStorage.setItem('token', data.token);                    
-                    // Redirect to dashboard or home page
+                    localStorage.setItem('token', data.token);
                     window.location.href = "../dashboard.html";
                 } else {
                     const error = await response.text();
-                    alert("Login failed: " + error);
+                    document.getElementById('message').textContent = "Login failed: " + error;
                 }
             } catch (err) {
-                alert("An error occurred. Please try again.");
+                document.getElementById('message').textContent = "An error occurred. Please try again.";
                 console.error(err);
             }
         });
     </script>
+
 </body>
 </html>
