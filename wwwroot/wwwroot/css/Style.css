@@ -10,7 +10,7 @@
 body, html {
     height: 100%;
     color: #B76E79;
-    background: url('/wwwroot/css/image.jpg') no-repeat center center fixed;
+    background: url('/css/image.jpg') no-repeat center center fixed;
     background-size: cover;
     font-family: 'Outfit', sans-serif;
 }
